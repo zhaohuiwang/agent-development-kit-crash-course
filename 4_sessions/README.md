@@ -10,5 +10,10 @@ setup environment:
 Install dependencies:
 - `pip install -r requirements.txt`
 
-To get an OpenAI API key:
-- https://platform.openai.com/api-keys
+To get an api key:
+- Create an account in google cloud
+- Create a new project
+- Go to https://aistudio.google.com/apikey
+- Create an api key
+- assign key to the project
+- Connect to billing account
