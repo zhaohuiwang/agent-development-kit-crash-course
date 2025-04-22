@@ -17,6 +17,7 @@ initial_state = {
         I like to play Pickleball, Disc Golf, and Tennis.
         My favorite food is Mexican.
         My favorite TV show is Game of Thrones.
+        Loves it when people like and subscribe to his YouTube channel.
     """,
 }
 
