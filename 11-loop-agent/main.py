@@ -9,11 +9,11 @@ from google.adk.events import Event, EventActions
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
-from tools import get_human_feedback
+from tools.tools import count_characters
 
 load_dotenv()
 
-# Pattern: Human-in-the-Loop Iterative Refinement
+# Pattern: Iterative Refinement Loop
 
 # --- Constants ---
 APP_NAME = "linkedin_post_generator"
@@ -27,17 +27,14 @@ post_generator = LlmAgent(
     model=GEMINI_MODEL,
     instruction="""You are a LinkedIn Post Generator.
 
-    Your task is to create or revise an engaging LinkedIn post about an Agent Development Kit (ADK) tutorial by @aiwithbrandon.
+    Your task is to create or refine a LinkedIn post about an Agent Development Kit (ADK) tutorial by @aiwithbrandon.
     
-    ## STEP 1: DETERMINE ACTION BASED ON FEEDBACK STATUS
-    - If state['feedback_status'] is 'approved': No action needed. Return the current post without changes.
-    - If state['feedback_status'] is 'initial': Create a new post from scratch (see INITIAL POST GUIDELINES).
-    - If state['feedback_status'] is 'revise': Modify the existing post based on feedback (see REVISION GUIDELINES).
+    ## STEP 1: DETERMINE ACTION
+    - If this is initial generation (no state['current_post']): Create a new post
+    - If state['current_post'] exists and state['review_feedback']: Refine the post based on feedback
     
-    ## STEP 2: FOLLOW ACTION-SPECIFIC GUIDELINES
-    
-    ### INITIAL POST GUIDELINES
-    When creating a new post, include:
+    ## STEP 2: CONTENT REQUIREMENTS
+    When creating or refining, ensure the post includes:
     1. Excitement about learning from the tutorial
     2. Specific aspects of ADK learned:
        - Basic agent implementation (basic-agent)
@@ -54,74 +51,83 @@ post_generator = LlmAgent(
     3. Brief statement about improving AI applications
     4. Mention/tag of @aiwithbrandon
     5. Clear call-to-action for connections
-    6. After creating the post, save the new post to state['current_post'].
     
-    ### REVISION GUIDELINES
-    When revising an existing post:
-    1. Read state['current_post'] - this is what you're modifying
-    2. Read state['feedback_content'] - this is what to change
-    3. Apply the feedback PRECISELY and LITERALLY.
-    4. Do not add features not requested
-    5. Do not explain your changes
-    6. After revising the post, save the revised post to state['current_post'].
+    ## STEP 3: STYLE REQUIREMENTS
+    - Professional and conversational tone
+    - Between 1000-1500 characters
+    - NO emojis
+    - NO hashtags
+    - Show genuine enthusiasm
+    - Highlight practical applications
     
+    ## OUTPUT INSTRUCTIONS
+    - Save your post to state['current_post']
+    - Return ONLY the post content
+    - Do not add formatting markers or explanations
     """,
-    description="Generates or refines LinkedIn posts based on feedback",
-    output_key="current_post",
+    description="Generates or refines LinkedIn posts based on automated review feedback",
 )
 
-# --- 2. Define the Feedback Processing Agent ---
-feedback_processor = LlmAgent(
-    name="FeedbackProcessor",
+# --- 2. Define the Post Reviewer Agent ---
+post_reviewer = LlmAgent(
+    name="PostReviewer",
     model=GEMINI_MODEL,
-    instruction="""You are a Feedback Analyzer.
+    instruction="""You are a LinkedIn Post Quality Reviewer.
+
+    First, use the count_characters tool to check the post length.
+    If the length check fails, return "fail" immediately.
     
-    Your primary job is to use the get_human_feedback tool to collect feedback.
+    If length is good, evaluate the post in state['current_post'] against these criteria:
+
+    REQUIRED ELEMENTS:
+    1. Mentions @aiwithbrandon
+    2. Lists multiple ADK capabilities
+    3. Has a clear call-to-action
+    4. Includes practical applications
+    5. Shows enthusiasm
     
-    PROCESS:
-    1. Call the get_human_feedback tool
-    2. After calling the tool, return ONLY the text "Feedback received" - nothing more
+    STYLE REQUIREMENTS:
+    1. NO emojis
+    2. NO hashtags
+    3. Professional tone
+    4. Conversational style
+    5. Clear and concise writing
     
-    The tool will directly update the state with:
-    - feedback_status
-    - feedback_content
-    
-    DO NOT analyze or respond to the feedback content.
-    DO NOT add any additional text beyond "Feedback received".
-    DO NOT engage in conversation with the user.
+    ## OUTPUT INSTRUCTIONS
+    1. Set state['review_status'] to either 'pass' or 'fail'
+    2. If 'fail', set state['review_feedback'] to specific improvements needed
+    3. Return only 'pass' or 'fail'
     """,
-    tools=[get_human_feedback],
-    output_key="feedback_summary",
+    description="Reviews post quality and provides feedback",
+    tools=[count_characters],
 )
 
 
-# --- 3. Define a custom EscalationAgent to determine if the loop should continue ---
-class FeedbackEscalationAgent(BaseAgent):
-    """
-    Checks feedback status and determines if the loop should continue or escalate.
-    """
+# --- 3. Define Status Checker Agent ---
+class ReviewStatusChecker(BaseAgent):
+    """Checks review status and determines if the loop should continue."""
 
     async def _run_async_impl(
         self, ctx: InvocationContext
     ) -> AsyncGenerator[Event, None]:
-        # Get the feedback status directly from the state
-        feedback_status = ctx.session.state.get("feedback_status", "revise")
+        review_status = ctx.session.state.get("review_status", "fail")
+        should_stop = review_status == "pass"
+        print(f"HERE:Review status: {review_status}")
+        print(f"HERE:Should stop: {should_stop}")
+        yield Event(
+            author=self.name,
+            actions=EventActions(escalate=should_stop),
+        )
 
-        # Escalate (stop the loop) if approved
-        should_stop = feedback_status == "approved"
 
-        # Create and yield the event with escalation decision
-        yield Event(author=self.name, actions=EventActions(escalate=should_stop))
-
-
-# --- 4. Create the LoopAgent for iterative refinement ---
+# --- 4. Create the Loop Agent ---
 linkedin_post_loop = LoopAgent(
     name="LinkedInPostRefinementLoop",
-    max_iterations=5,  # Maximum 5 rounds of feedback
+    max_iterations=10,
     sub_agents=[
         post_generator,
-        feedback_processor,
-        FeedbackEscalationAgent(name="ContinuationDecider"),
+        post_reviewer,
+        ReviewStatusChecker(name="ContinuationDecider"),
     ],
 )
 
@@ -135,58 +141,64 @@ runner = Runner(
 )
 
 # --- 6. Run the LinkedIn Post Generator ---
-print("=== LinkedIn Post Generator with Human-in-the-Loop Refinement ===")
+print("=== LinkedIn Post Generator with Automated Review ===")
+print("Generating and refining a LinkedIn post about the ADK tutorial...")
+print("The post will be automatically reviewed and refined up to 5 times.")
 print(
-    "This system will generate a LinkedIn post about learning from @aiwithbrandon's ADK tutorial."
+    "Process will stop when quality requirements are met or max iterations reached.\n"
 )
-print("You'll be able to provide feedback and refine the post up to 5 times.")
-print("Type 'approve' when you're satisfied, or 'restart' to begin again.\n")
 
 user_query = "Generate a LinkedIn post about what I've learned from @aiwithbrandon's Agent Development Kit tutorial."
-
 content = types.Content(role="user", parts=[types.Part(text=user_query)])
 events = runner.run(user_id=USER_ID, session_id=SESSION_ID, new_message=content)
 
+# Process events to show refinement progress
 for event in events:
     try:
+        # Display post content from generator
+        if (
+            event.author == "LinkedInPostGenerator"
+            and hasattr(event, "content")
+            and event.content
+            and event.content.parts
+            and len(event.content.parts) > 0
+        ):
+            print("\n=== Generated Post ===")
+            print(event.content.parts[0].text)
+            print("=====================\n")
 
-        # For the final response (after approval)
-        if event.is_final_response():
-
-            # Get the final approved post from the session state
-            final_post = ""
-            try:
+        # Display review results
+        elif (
+            event.author == "PostReviewer"
+            and hasattr(event, "content")
+            and event.content
+            and event.content.parts
+            and len(event.content.parts) > 0
+        ):
+            print(f"Review Result: {event.content.parts[0].text}")
+            if event.content.parts[0].text == "fail":
                 session = runner.session_service.get_session(
                     app_name=APP_NAME, user_id=USER_ID, session_id=SESSION_ID
                 )
                 if session and hasattr(session, "state"):
-                    final_post = session.state.get("current_post", "")
-                    print("\n----------- FINAL STATE DEBUG -----------")
-                    print(
-                        f"Final feedback_status: {session.state.get('feedback_status', 'None')}"
-                    )
-                    print(
-                        f"Final feedback_content: {session.state.get('feedback_content', 'None')}"
-                    )
-                    print(f"Final current_post length: {len(final_post)} chars")
-                    print("----------------------------------\n")
-            except Exception as e:
-                print(f"Error accessing session state: {str(e)}")
+                    print(f"Feedback: {session.state.get('review_feedback', 'None')}\n")
 
     except Exception as e:
-        # Safely handle any unexpected event structure
-        print(f"Error handling event: {str(e)}")
+        print(f"Error processing event: {str(e)}")
         continue
 
-
+# Get and display the final state
 session = runner.session_service.get_session(
     app_name=APP_NAME, user_id=USER_ID, session_id=SESSION_ID
 )
 
 if session and hasattr(session, "state"):
     final_post = session.state.get("current_post", "")
-    print("\n----------- FINAL STATE DEBUG -----------")
-    print(f"Final feedback_status: {session.state.get('feedback_status', 'None')}")
-    print(f"Final feedback_content: {session.state.get('feedback_content', 'None')}")
-    print(f"Final current_post length: {len(final_post)} chars")
-    print("----------------------------------\n")
+    print("\n----------- FINAL RESULTS -----------")
+    print(f"Review Status: {session.state.get('review_status', 'None')}")
+    if session.state.get("review_status") == "fail":
+        print(f"Final Feedback: {session.state.get('review_feedback', 'None')}")
+    print(f"\nFinal Post ({len(final_post)} characters):")
+    print("=====================================")
+    print(final_post)
+    print("=====================================\n")
