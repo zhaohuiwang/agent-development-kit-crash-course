@@ -9,24 +9,28 @@ from typing import Any, Dict
 from google.adk.tools.tool_context import ToolContext
 
 
-def count_characters(tool_context: ToolContext) -> Dict[str, Any]:
+def count_characters(text: str, tool_context: ToolContext) -> Dict[str, Any]:
     """
-    Tool to count characters in the current post and provide length-based feedback.
+    Tool to count characters in the provided text and provide length-based feedback.
     Updates review_status and review_feedback in the state based on length requirements.
 
     Args:
+        text: The text to analyze for character count
         tool_context: Context for accessing and updating session state
 
     Returns:
-        Dict[str, Any]: Dictionary containing character count and status information
+        Dict[str, Any]: Dictionary containing:
+            - result: 'too_short', 'too_long', or 'good'
+            - char_count: number of characters in text
+            - chars_needed: characters to add (if too short)
+            - chars_to_remove: characters to remove (if too long)
     """
-    current_post = tool_context.state.get("current_post", "")
-    char_count = len(current_post)
+    char_count = len(text)
     MIN_LENGTH = 1000
     MAX_LENGTH = 1500
 
     print("\n----------- TOOL DEBUG -----------")
-    print(f"Checking post length: {char_count} characters")
+    print(f"Checking text length: {char_count} characters")
     print("----------------------------------\n")
 
     if char_count < MIN_LENGTH:

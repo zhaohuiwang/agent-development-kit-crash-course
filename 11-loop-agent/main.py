@@ -61,11 +61,11 @@ post_generator = LlmAgent(
     - Highlight practical applications
     
     ## OUTPUT INSTRUCTIONS
-    - Save your post to state['current_post']
     - Return ONLY the post content
     - Do not add formatting markers or explanations
     """,
     description="Generates or refines LinkedIn posts based on automated review feedback",
+    output_key="current_post",
 )
 
 # --- 2. Define the Post Reviewer Agent ---
@@ -74,10 +74,11 @@ post_reviewer = LlmAgent(
     model=GEMINI_MODEL,
     instruction="""You are a LinkedIn Post Quality Reviewer.
 
-    First, use the count_characters tool to check the post length.
+    First, get the current post from state['current_post'] and use the count_characters tool to check its length.
+    Pass the post text directly to the tool.
     If the length check fails, return "fail" immediately.
     
-    If length is good, evaluate the post in state['current_post'] against these criteria:
+    If length is good, evaluate the post against these criteria:
 
     REQUIRED ELEMENTS:
     1. Mentions @aiwithbrandon
