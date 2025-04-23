@@ -4,7 +4,6 @@ Tools for Human-in-the-Loop LinkedIn Post Generator
 This module provides tools for human feedback in the post generation loop.
 """
 
-import time
 from typing import Any, Dict
 
 from google.adk.tools.tool_context import ToolContext

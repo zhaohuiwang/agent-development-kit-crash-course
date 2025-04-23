@@ -29,9 +29,17 @@ post_generator = LlmAgent(
 
     Your task is to create or revise an engaging LinkedIn post about an Agent Development Kit (ADK) tutorial by @aiwithbrandon.
     
-    If this is the first iteration (no current_post in state), create a new post that:
-    1. Expresses excitement about learning from the tutorial
-    2. Mentions specific aspects of ADK they learned, including:
+    ## STEP 1: DETERMINE ACTION BASED ON FEEDBACK STATUS
+    - If state['feedback_status'] is 'approved': No action needed. Return the current post without changes.
+    - If state['feedback_status'] is 'initial': Create a new post from scratch (see INITIAL POST GUIDELINES).
+    - If state['feedback_status'] is 'revise': Modify the existing post based on feedback (see REVISION GUIDELINES).
+    
+    ## STEP 2: FOLLOW ACTION-SPECIFIC GUIDELINES
+    
+    ### INITIAL POST GUIDELINES
+    When creating a new post, include:
+    1. Excitement about learning from the tutorial
+    2. Specific aspects of ADK learned:
        - Basic agent implementation (basic-agent)
        - Tool integration (tool-agent)
        - Using LiteLLM (litellm-agent)
@@ -43,30 +51,20 @@ post_generator = LlmAgent(
        - Sequential agents for pipeline workflows
        - Parallel agents for concurrent operations
        - Loop agents for iterative refinement
-    3. Contains a brief statement about how these capabilities will improve their AI applications
-    4. Includes a mention/tag of @aiwithbrandon
-    5. Has a clear call-to-action for connections to check out the tutorial
+    3. Brief statement about improving AI applications
+    4. Mention/tag of @aiwithbrandon
+    5. Clear call-to-action for connections
+    6. After creating the post, save the new post to state['current_post'].
     
-    IMPORTANT REVISION INSTRUCTIONS:
-    When there is feedback in the state (feedback_status is 'revise' and feedback_content has text):
-    1. Read the current_post from state - this is the post you need to modify 
-    2. Read feedback_content exactly as written - this is what you need to change
-    3. Apply the feedback PRECISELY:
-       - If user says "no emojis" - REMOVE ALL EMOJIS
-       - If user says "more professional" - Remove casual language and emoticons
-       - If user says "shorter" - Reduce the length substantially
-       - ALWAYS follow the feedback literally and exactly as written
-    4. Do not add features the user didn't ask for
-    5. Do not explain your changes or talk about the feedback
+    ### REVISION GUIDELINES
+    When revising an existing post:
+    1. Read state['current_post'] - this is what you're modifying
+    2. Read state['feedback_content'] - this is what to change
+    3. Apply the feedback PRECISELY and LITERALLY.
+    4. Do not add features not requested
+    5. Do not explain your changes
+    6. After revising the post, save the revised post to state['current_post'].
     
-    The post should:
-    - Be professional yet conversational
-    - Be concise (ideal for LinkedIn)
-    - Show enthusiasm about the subject
-    - Highlight practical applications of these capabilities
-    - Be ready to copy-paste into LinkedIn
-    
-    Output ONLY the revised post without any additional comments.
     """,
     description="Generates or refines LinkedIn posts based on feedback",
     output_key="current_post",
@@ -149,30 +147,11 @@ user_query = "Generate a LinkedIn post about what I've learned from @aiwithbrand
 content = types.Content(role="user", parts=[types.Part(text=user_query)])
 events = runner.run(user_id=USER_ID, session_id=SESSION_ID, new_message=content)
 
-# Process and display results
-completion_message_shown = False
-
 for event in events:
     try:
-        # Display all non-final response events with content
-        if (
-            not event.is_final_response()
-            and hasattr(event, "content")
-            and event.content
-            and event.content.parts
-        ):
-            if len(event.content.parts) > 0 and event.content.parts[0].text:
-                text = event.content.parts[0].text
-
-                # Display only if it seems substantial (filter out very short responses)
-                if len(text) > 50:
-                    print("\n=== LINKEDIN POST ===")
-                    print(text)
-                    print("===================\n")
 
         # For the final response (after approval)
-        if event.is_final_response() and not completion_message_shown:
-            completion_message_shown = True
+        if event.is_final_response():
 
             # Get the final approved post from the session state
             final_post = ""
@@ -194,17 +173,20 @@ for event in events:
             except Exception as e:
                 print(f"Error accessing session state: {str(e)}")
 
-            if final_post:
-                print("\n=== YOUR APPROVED LINKEDIN POST ===")
-                print(final_post)
-                print("==================================\n")
-            else:
-                print("No post found in session state")
-
-            print(
-                "Post generation complete! Copy and paste this post to LinkedIn to share your learning experience."
-            )
     except Exception as e:
         # Safely handle any unexpected event structure
         print(f"Error handling event: {str(e)}")
         continue
+
+
+session = runner.session_service.get_session(
+    app_name=APP_NAME, user_id=USER_ID, session_id=SESSION_ID
+)
+
+if session and hasattr(session, "state"):
+    final_post = session.state.get("current_post", "")
+    print("\n----------- FINAL STATE DEBUG -----------")
+    print(f"Final feedback_status: {session.state.get('feedback_status', 'None')}")
+    print(f"Final feedback_content: {session.state.get('feedback_content', 'None')}")
+    print(f"Final current_post length: {len(final_post)} chars")
+    print("----------------------------------\n")
