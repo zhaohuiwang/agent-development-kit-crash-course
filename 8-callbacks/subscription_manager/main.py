@@ -1,6 +1,5 @@
 import asyncio
 import uuid
-from datetime import datetime
 
 from agent import subscription_manager
 from dotenv import load_dotenv
@@ -14,7 +13,7 @@ load_dotenv()
 session_service = InMemorySessionService()
 
 
-def initialize_state(user_id="user123"):
+def initialize_state(user_id="aiwithbrandon"):
     """Initialize the session state with default values."""
     return {
         "user_id": user_id,
@@ -25,7 +24,7 @@ def initialize_state(user_id="user123"):
 async def main_async():
     # Setup constants
     APP_NAME = "Subscription Manager"
-    USER_ID = "user123"  # Default user
+    USER_ID = "aiwithbrandon"
     SESSION_ID = str(uuid.uuid4())
 
     # Create a new session with initial state
