@@ -9,8 +9,6 @@ from utils import call_agent_async
 
 load_dotenv()
 
-# Create a new session service with SQLite database for persistence
-# https://google.github.io/adk-docs/sessions/session/#sessionservice-implementations
 db_url = "sqlite:///./my_agent_data.db"
 session_service = DatabaseSessionService(db_url=db_url)
 

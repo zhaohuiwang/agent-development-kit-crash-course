@@ -1,11 +1,11 @@
 import asyncio
 import uuid
 
-from agent import subscription_manager
 from dotenv import load_dotenv
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
+from subscription_manager import subscription_manager
 
 load_dotenv()
 
