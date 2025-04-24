@@ -1,2 +1,0 @@
-google-adk==0.2.0
-yfinance

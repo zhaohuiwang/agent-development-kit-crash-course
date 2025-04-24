@@ -1,2 +1,0 @@
-google-adk[database]==0.2.0
-python-dotenv 
