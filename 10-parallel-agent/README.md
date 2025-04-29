@@ -23,7 +23,7 @@ In this example, we've created a system monitoring application that uses a Paral
 
 2. **Sequential Report Synthesis**: After parallel data collection, a synthesizer agent combines all information into a comprehensive report
 
-### System Information Gatherers (Parallel Sub-agents)
+### Sub-Agents
 
 1. **CPU Info Agent**: Collects and analyzes CPU information
    - Retrieves core counts, usage statistics, and performance metrics
@@ -122,7 +122,15 @@ Try these example prompts:
 Check my system health
 ```
 
-## Independent Execution and State Management
+```
+Provide a comprehensive system report with recommendations
+```
+
+```
+Is my system running out of memory or disk space?
+```
+
+## Key Concepts: Independent Execution
 
 One key aspect of Parallel Agents is that **sub-agents run independently without sharing state during execution**. In this example:
 
@@ -139,8 +147,6 @@ ADK offers different types of workflow agents for different needs:
 - **Sequential Agents**: For strict, ordered execution where each step depends on previous outputs
 - **Loop Agents**: For repeated execution of sub-agents based on conditions
 - **Parallel Agents**: For concurrent execution of independent sub-agents (like this example)
-
-Each workflow type has its ideal use cases, and they can be combined as shown in this example, where we use both Parallel and Sequential patterns.
 
 ## Additional Resources
 
