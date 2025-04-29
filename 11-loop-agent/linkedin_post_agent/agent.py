@@ -2,24 +2,32 @@
 LinkedIn Post Generator Root Agent
 
 This module defines the root agent for the LinkedIn post generation application.
-It uses a loop agent for iterative refinement of LinkedIn posts.
+It uses a sequential agent with an initial post generator followed by a refinement loop.
 """
 
-from google.adk.agents import LoopAgent
+from google.adk.agents import LoopAgent, SequentialAgent
 
-from .subagents.post_generator import post_generator
+from .subagents.post_generator import initial_post_generator
+from .subagents.post_refiner import post_refiner
 from .subagents.post_reviewer import post_reviewer
 
-# Create the LinkedIn Post Loop Agent
-linkedin_post_loop = LoopAgent(
-    name="LinkedInPostRefinementLoop",
+# Create the Refinement Loop Agent
+refinement_loop = LoopAgent(
+    name="PostRefinementLoop",
     max_iterations=10,
     sub_agents=[
-        post_generator,
         post_reviewer,
+        post_refiner,
     ],
-    description="Iteratively generates and refines a LinkedIn post until quality requirements are met",
+    description="Iteratively reviews and refines a LinkedIn post until quality requirements are met",
 )
 
-# Define the root agent for ADK web compatibility
-root_agent = linkedin_post_loop
+# Create the Sequential Pipeline
+root_agent = SequentialAgent(
+    name="LinkedInPostGenerationPipeline",
+    sub_agents=[
+        initial_post_generator,  # Step 1: Generate initial post
+        refinement_loop,  # Step 2: Review and refine in a loop
+    ],
+    description="Generates and refines a LinkedIn post through an iterative review process",
+)
