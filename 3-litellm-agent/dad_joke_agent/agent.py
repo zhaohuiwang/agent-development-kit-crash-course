@@ -5,8 +5,8 @@ from google.adk.agents import Agent
 from google.adk.models.lite_llm import LiteLlm
 
 model = LiteLlm(
-    model="openai/gpt-4o",
-    api_key=os.getenv("OPENAI_API_KEY"),
+    model="openrouter/openai/gpt-4.1",
+    api_key=os.getenv("OPENROUTER_API_KEY"),
 )
 
 
@@ -21,7 +21,7 @@ def get_dad_joke():
 
 
 root_agent = Agent(
-    name="openai_dad_joke_agent",
+    name="dad_joke_agent",
     model=model,
     description="Dad joke agent",
     instruction="""

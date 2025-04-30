@@ -20,7 +20,7 @@ The Agent Development Kit (ADK) is designed to be model-agnostic, meaning it can
 3. **Model Exploration**: Experiment with different models to find the best performance for your task
 4. **Future-Proofing**: As new models are released, you can quickly adopt them without major code changes
 
-This example demonstrates how to use LiteLLM with ADK to create an agent powered by OpenAI's models rather than Google's Gemini models.
+This example demonstrates how to use LiteLLM with ADK to create an agent powered by models through OpenRouter rather than Google's Gemini models.
 
 ## Limitations When Using Non-Google Models
 
@@ -50,21 +50,21 @@ source ../.venv/bin/activate
 ..\.venv\Scripts\Activate.ps1
 ```
 
-2. Set up your OpenAI API key:
-   - Create an account at [OpenAI](https://openai.com/api/) if you don't have one
-   - Generate an API key at https://platform.openai.com/api-keys
-   - Rename `.env.example` to `.env` in the openai_dad_joke_agent folder
-   - Add your OpenAI API key to the `OPENAI_API_KEY` variable in the `.env` file
+2. Set up your OpenRouter API key:
+   - Create an account at [OpenRouter](https://openrouter.ai/) if you don't have one
+   - Generate an API key at https://openrouter.ai/keys
+   - Rename `.env.example` to `.env` in the openrouter_dad_joke_agent folder
+   - Add your OpenRouter API key to the `OPENROUTER_API_KEY` variable in the `.env` file
 
 ## Understanding the Code
 
 This example demonstrates:
 
 1. How to use the `LiteLlm` model adapter with ADK
-2. How to connect to OpenAI's models (specifically GPT-4o)
+2. How to connect to models through OpenRouter (specifically Claude 3.5 Sonnet)
 3. How to create a simple agent with a custom tool
 
-The agent is configured to tell dad jokes using a custom function tool `get_dad_joke()` and powered by OpenAI's GPT-4o model instead of Google's Gemini.
+The agent is configured to tell dad jokes using a custom function tool `get_dad_joke()` and powered by Anthropic's Claude 3.5 Sonnet model through OpenRouter instead of Google's Gemini.
 
 ## Running the Example
 
@@ -79,7 +79,7 @@ adk web
 
 3. Access the web UI by opening the URL shown in your terminal (typically http://localhost:8000)
 
-4. Select the "openai_dad_joke_agent" from the dropdown menu in the top-left corner of the UI
+4. Select the "openrouter_dad_joke_agent" from the dropdown menu in the top-left corner of the UI
 
 5. Start chatting with your agent in the textbox at the bottom of the screen
 
@@ -91,31 +91,31 @@ You can exit the conversation or stop the server by pressing `Ctrl+C` in your te
 
 ## Modifying the Example
 
-You can easily modify this example to use different models from different providers by changing the `LiteLlm` configuration. For example:
+You can easily modify this example to use different models from different providers through OpenRouter by changing the `LiteLlm` configuration. For example:
 
 ```python
-# To use Claude 3.7 Sonnet from Anthropic (their most advanced model)
+# To use Claude 3.5 Sonnet from Anthropic through OpenRouter
 model = LiteLlm(
-    model="anthropic/claude-3-7-sonnet",
-    api_key=os.getenv("ANTHROPIC_API_KEY"),
+    model="openrouter/anthropic/claude-3-5-sonnet",
+    api_key=os.getenv("OPENROUTER_API_KEY"),
 )
 
-# To use Llama 3.1 405B from Meta through Replicate
+# To use GPT-4o from OpenAI through OpenRouter
 model = LiteLlm(
-    model="replicate/meta-llama/llama-3-1-405b", 
-    api_key=os.getenv("REPLICATE_API_KEY"),
+    model="openrouter/openai/gpt-4o",
+    api_key=os.getenv("OPENROUTER_API_KEY"),
 )
 
-# To use LLama 3 through Groq (faster inference times)
+# To use Llama 3 70B from Meta through OpenRouter
 model = LiteLlm(
-    model="groq/llama-3-8b-8192",
-    api_key=os.getenv("GROQ_API_KEY"),
+    model="openrouter/meta-llama/meta-llama-3-70b-instruct",
+    api_key=os.getenv("OPENROUTER_API_KEY"),
 )
 
-# To use Mixtral through Groq
+# To use Mistral Large through OpenRouter
 model = LiteLlm(
-    model="groq/mixtral-8x7b-32768",
-    api_key=os.getenv("GROQ_API_KEY"),
+    model="openrouter/mistral/mistral-large-latest",
+    api_key=os.getenv("OPENROUTER_API_KEY"),
 )
 ```
 
@@ -124,6 +124,5 @@ model = LiteLlm(
 - [Google ADK LiteLLM Integration Documentation](https://google.github.io/adk-docs/tutorials/agent-team/#step-2-going-multi-model-with-litellm-optional)
 - [LiteLLM Documentation](https://docs.litellm.ai/docs/)
 - [LiteLLM Supported Providers](https://docs.litellm.ai/docs/providers)
-- [OpenAI API Documentation](https://platform.openai.com/docs/api-reference)
+- [OpenRouter Documentation](https://openrouter.ai/docs)
 - [Anthropic Claude Models Overview](https://docs.anthropic.com/en/docs/about-claude/models/all-models)
-- [Groq Documentation](https://console.groq.com/docs/quickstart)
