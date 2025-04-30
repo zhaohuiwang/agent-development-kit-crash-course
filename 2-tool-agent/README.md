@@ -136,5 +136,6 @@ You can exit the conversation or stop the server by pressing `Ctrl+C` in your te
 
 ## Additional Resources
 
+- [Types of tools](https://google.github.io/adk-docs/tools/#full-example-tavily-search)
 - [ADK Function Tools Documentation](https://google.github.io/adk-docs/tools/function-tools/)
 - [ADK Built-in Tools Documentation](https://google.github.io/adk-docs/tools/built-in-tools/)
