@@ -55,6 +55,9 @@ funny_nerd = Agent(
     <JOKE>
     
     Explanation: {brief explanation if needed}"
+
+    If the user asks about anything else, 
+    you should delegate the task to the manager agent.
     """,
     tools=[get_nerd_joke],
 )
