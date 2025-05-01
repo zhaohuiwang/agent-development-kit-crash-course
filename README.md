@@ -59,28 +59,31 @@ Learn how to enhance agents with tools that allow them to perform actions beyond
 ### 3. LiteLLM Agent
 Example of using LiteLLM to abstract away LLM provider details and easily switch between different models.
 
-### 4. Sessions Agent
+### 4. Structured Outputs
+Learn how to use Pydantic models with `output_schema` to ensure consistent, structured responses from your agents.
+
+### 5. Sessions and State
 Understand how to maintain state and memory across multiple interactions using sessions.
 
-### 5. Persistent Storage
+### 6. Persistent Storage
 Learn techniques for storing agent data persistently across sessions and application restarts.
 
-### 6. Multi-Agent
+### 7. Multi-Agent
 See how to orchestrate multiple specialized agents working together to solve complex tasks.
 
-### 7. Stateful Multi-Agent
+### 8. Stateful Multi-Agent
 Build agents that maintain and update state throughout complex multi-turn conversations.
 
-### 8. Callback System
+### 9. Callbacks
 Implement event callbacks to monitor and respond to agent behaviors in real-time.
 
-### 9. Sequential Agent
+### 10. Sequential Agent
 Create pipeline workflows where agents operate in a defined sequence to process information.
 
-### 10. Parallel Agent
+### 11. Parallel Agent
 Leverage concurrent operations with parallel agents for improved efficiency and performance.
 
-### 11. Loop Agent
+### 12. Loop Agent
 Build sophisticated agents that can iteratively refine their outputs through feedback loops.
 
 ## Official Documentation
