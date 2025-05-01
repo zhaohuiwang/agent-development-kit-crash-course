@@ -6,22 +6,22 @@ from customer_service_agent.agent import customer_service_agent
 from dotenv import load_dotenv
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
-from google.genai import types
 from utils import add_user_query_to_history, call_agent_async
 
 load_dotenv()
 
-# Create a new session service to store state
+# ===== PART 1: Initialize In-Memory Session Service =====
+# Using in-memory storage for this example (non-persistent)
 session_service = InMemorySessionService()
 
 
-def initialize_state():
-    """Initialize the session state with default values."""
-    return {
-        "user_name": "Brandon Hancock",
-        "purchased_courses": [""],
-        "interaction_history": [],
-    }
+# ===== PART 2: Define Initial State =====
+# This will be used when creating a new session
+initial_state = {
+    "user_name": "Brandon Hancock",
+    "purchased_courses": [""],
+    "interaction_history": [],
+}
 
 
 async def main_async():
@@ -30,15 +30,17 @@ async def main_async():
     USER_ID = "aiwithbrandon"
     SESSION_ID = str(uuid.uuid4())
 
+    # ===== PART 3: Session Creation =====
     # Create a new session with initial state
     session_service.create_session(
         app_name=APP_NAME,
         user_id=USER_ID,
         session_id=SESSION_ID,
-        state=initialize_state(),
+        state=initial_state,
     )
     print(f"Created new session: {SESSION_ID}")
 
+    # ===== PART 4: Agent Runner Setup =====
     # Create a runner with the main customer service agent
     runner = Runner(
         agent=customer_service_agent,
@@ -46,7 +48,7 @@ async def main_async():
         session_service=session_service,
     )
 
-    # Interactive conversation loop
+    # ===== PART 5: Interactive Conversation Loop =====
     print("\nWelcome to Customer Service Chat!")
     print("Type 'exit' or 'quit' to end the conversation.\n")
 
@@ -67,6 +69,7 @@ async def main_async():
         # Process the user query through the agent
         await call_agent_async(runner, USER_ID, SESSION_ID, user_input)
 
+    # ===== PART 6: State Examination =====
     # Show final session state
     final_session = session_service.get_session(
         app_name=APP_NAME, user_id=USER_ID, session_id=SESSION_ID
