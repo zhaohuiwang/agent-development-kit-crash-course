@@ -54,12 +54,12 @@ for event in runner.run(
         if event.content and event.content.parts:
             print(f"Final Response: {event.content.parts[0].text}")
 
-# print("==== Session Event Exploration ====")
-# session = session_service_stateful.get_session(
-#     app_name=APP_NAME, user_id=USER_ID, session_id=SESSION_ID
-# )
-# # Showcase message history in sessions
-# print("Session Events:")
-# for event in session.events:
-#     if event.content and event.content.parts:
-#         print(event.content.parts[0].text)
+print("==== Session Event Exploration ====")
+session = session_service_stateful.get_session(
+    app_name=APP_NAME, user_id=USER_ID, session_id=SESSION_ID
+)
+
+# Log final Session state
+print("=== Final Session State ===")
+for key, value in session.state.items():
+    print(f"{key}: {value}")
