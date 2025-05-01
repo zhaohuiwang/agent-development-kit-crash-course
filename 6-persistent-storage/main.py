@@ -1,5 +1,4 @@
 import asyncio
-import uuid
 
 from dotenv import load_dotenv
 from google.adk.runners import Runner
@@ -9,24 +8,26 @@ from utils import call_agent_async
 
 load_dotenv()
 
+# ===== PART 1: Initialize Persistent Session Service =====
+# Using SQLite database for persistent storage
 db_url = "sqlite:///./my_agent_data.db"
 session_service = DatabaseSessionService(db_url=db_url)
 
 
-def initialize_state():
-    """Initialize the session state with default values."""
-    return {
-        "user_name": "Brandon Hancock",
-        "reminders": [],
-    }
+# ===== PART 2: Define Initial State =====
+# This will only be used when creating a new session
+initial_state = {
+    "user_name": "Brandon Hancock",
+    "reminders": [],
+}
 
 
 async def main_async():
     # Setup constants
     APP_NAME = "Memory Agent"
     USER_ID = "aiwithbrandon"
-    SESSION_ID = str(uuid.uuid4())
 
+    # ===== PART 3: Session Management - Find or Create =====
     # Check for existing sessions for this user
     existing_sessions = session_service.list_sessions(
         app_name=APP_NAME,
@@ -40,14 +41,15 @@ async def main_async():
         print(f"Continuing existing session: {SESSION_ID}")
     else:
         # Create a new session with initial state
-        session_service.create_session(
+        new_session = session_service.create_session(
             app_name=APP_NAME,
             user_id=USER_ID,
-            session_id=SESSION_ID,
-            state=initialize_state(),
+            state=initial_state,
         )
+        SESSION_ID = new_session.id
         print(f"Created new session: {SESSION_ID}")
 
+    # ===== PART 4: Agent Runner Setup =====
     # Create a runner with the memory agent
     runner = Runner(
         agent=memory_agent,
@@ -55,7 +57,7 @@ async def main_async():
         session_service=session_service,
     )
 
-    # Interactive conversation loop
+    # ===== PART 5: Interactive Conversation Loop =====
     print("\nWelcome to Memory Agent Chat!")
     print("Your reminders will be remembered across conversations.")
     print("Type 'exit' or 'quit' to end the conversation.\n")
@@ -73,10 +75,5 @@ async def main_async():
         await call_agent_async(runner, USER_ID, SESSION_ID, user_input)
 
 
-def main():
-    """Entry point for the application."""
-    asyncio.run(main_async())
-
-
 if __name__ == "__main__":
-    main()
+    asyncio.run(main_async())
