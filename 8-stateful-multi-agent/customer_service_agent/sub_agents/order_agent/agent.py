@@ -4,6 +4,13 @@ from google.adk.agents import Agent
 from google.adk.tools.tool_context import ToolContext
 
 
+def get_current_time() -> dict:
+    """Get the current time in the format YYYY-MM-DD HH:MM:SS"""
+    return {
+        "current_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    }
+
+
 def refund_course(tool_context: ToolContext) -> dict:
     """
     Simulates refunding the AI Marketing Platform course.
@@ -82,6 +89,7 @@ order_agent = Agent(
        - Use the refund_course tool to process the refund
        - Confirm the refund was successful
        - Remind them the money will be returned to their original payment method
+       - If it's been more than 30 days, inform them that they are not eligible for a refund
     3. If they don't own it:
        - Inform them they don't own the course, so no refund is needed
 
@@ -109,5 +117,5 @@ order_agent = Agent(
     - Direct course questions to course support
     - Direct purchase inquiries to sales
     """,
-    tools=[refund_course],
+    tools=[refund_course, get_current_time],
 )

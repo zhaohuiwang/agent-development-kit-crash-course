@@ -1,20 +1,9 @@
-from datetime import datetime
-
 from google.adk.agents import Agent
-from google.adk.tools.agent_tool import AgentTool
 
 from .sub_agents.course_support_agent.agent import course_support_agent
 from .sub_agents.order_agent.agent import order_agent
 from .sub_agents.policy_agent.agent import policy_agent
 from .sub_agents.sales_agent.agent import sales_agent
-
-
-def get_current_time() -> dict:
-    """Get the current time in the format YYYY-MM-DD HH:MM:SS"""
-    return {
-        "current_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-    }
-
 
 # Create the root customer service agent
 customer_service_agent = Agent(
@@ -86,5 +75,5 @@ customer_service_agent = Agent(
     ask clarifying questions to better understand the user's needs.
     """,
     sub_agents=[policy_agent, sales_agent, course_support_agent, order_agent],
-    tools=[get_current_time],
+    tools=[],
 )

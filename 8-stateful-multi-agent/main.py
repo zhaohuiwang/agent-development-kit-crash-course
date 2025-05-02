@@ -1,5 +1,4 @@
 import asyncio
-import uuid
 
 # Import the main customer service agent
 from customer_service_agent.agent import customer_service_agent
