@@ -1,11 +1,11 @@
 """
 Before and After Model Callbacks Example
 
-This example demonstrates using model callbacks to filter content and log model interactions.
+This example demonstrates using model callbacks 
+to filter content and log model interactions.
 """
 
 import copy
-import logging
 from datetime import datetime
 from typing import Optional
 
@@ -13,13 +13,6 @@ from google.adk.agents import LlmAgent
 from google.adk.agents.callback_context import CallbackContext
 from google.adk.models import LlmRequest, LlmResponse
 from google.genai import types
-
-# Configure basic logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-)
-logger = logging.getLogger("model_logger")
 
 
 def before_model_callback(
@@ -50,21 +43,21 @@ def before_model_callback(
                     break
 
     # Log the request
-    logger.info("=== MODEL REQUEST STARTED ===")
-    logger.info(f"Agent: {agent_name}")
+    print("=== MODEL REQUEST STARTED ===")
+    print(f"Agent: {agent_name}")
     if last_user_message:
-        logger.info(f"User message: {last_user_message[:100]}...")
+        print(f"User message: {last_user_message[:100]}...")
         # Store for later use
         state["last_user_message"] = last_user_message
     else:
-        logger.info("User message: <empty>")
+        print("User message: <empty>")
 
-    logger.info(f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
     # Check for inappropriate content
     if last_user_message and "sucks" in last_user_message.lower():
-        logger.warning("=== INAPPROPRIATE CONTENT BLOCKED ===")
-        logger.warning("Blocked text containing prohibited word: 'sucks'")
+        print("=== INAPPROPRIATE CONTENT BLOCKED ===")
+        print("Blocked text containing prohibited word: 'sucks'")
 
         print("[BEFORE MODEL] ⚠️ Request blocked due to inappropriate content")
 

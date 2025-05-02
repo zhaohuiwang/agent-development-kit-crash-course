@@ -5,20 +5,12 @@ This example demonstrates how to use both before_agent_callback and after_agent_
 for logging purposes.
 """
 
-import logging
 from datetime import datetime
 from typing import Optional
 
 from google.adk.agents import LlmAgent
 from google.adk.agents.callback_context import CallbackContext
 from google.genai import types
-
-# Configure basic logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-)
-logger = logging.getLogger("agent_logger")
 
 
 def before_agent_callback(callback_context: CallbackContext) -> Optional[types.Content]:
@@ -51,9 +43,9 @@ def before_agent_callback(callback_context: CallbackContext) -> Optional[types.C
     state["request_start_time"] = timestamp
 
     # Log the request
-    logger.info("=== AGENT EXECUTION STARTED ===")
-    logger.info(f"Request #: {state['request_counter']}")
-    logger.info(f"Timestamp: {timestamp.strftime('%Y-%m-%d %H:%M:%S')}")
+    print("=== AGENT EXECUTION STARTED ===")
+    print(f"Request #: {state['request_counter']}")
+    print(f"Timestamp: {timestamp.strftime('%Y-%m-%d %H:%M:%S')}")
 
     # Print to console
     print(f"\n[BEFORE CALLBACK] Agent processing request #{state['request_counter']}")
@@ -81,10 +73,10 @@ def after_agent_callback(callback_context: CallbackContext) -> Optional[types.Co
         duration = (timestamp - state["request_start_time"]).total_seconds()
 
     # Log the completion
-    logger.info("=== AGENT EXECUTION COMPLETED ===")
-    logger.info(f"Request #: {state.get('request_counter', 'Unknown')}")
+    print("=== AGENT EXECUTION COMPLETED ===")
+    print(f"Request #: {state.get('request_counter', 'Unknown')}")
     if duration is not None:
-        logger.info(f"Duration: {duration:.2f} seconds")
+        print(f"Duration: {duration:.2f} seconds")
 
     # Print to console
     print(
