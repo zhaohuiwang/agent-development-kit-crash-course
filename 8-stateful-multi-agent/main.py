@@ -28,16 +28,15 @@ async def main_async():
     # Setup constants
     APP_NAME = "Customer Support"
     USER_ID = "aiwithbrandon"
-    SESSION_ID = str(uuid.uuid4())
 
     # ===== PART 3: Session Creation =====
     # Create a new session with initial state
-    session_service.create_session(
+    new_session = session_service.create_session(
         app_name=APP_NAME,
         user_id=USER_ID,
-        session_id=SESSION_ID,
         state=initial_state,
     )
+    SESSION_ID = new_session.id
     print(f"Created new session: {SESSION_ID}")
 
     # ===== PART 4: Agent Runner Setup =====
