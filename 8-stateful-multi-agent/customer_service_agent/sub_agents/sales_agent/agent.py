@@ -16,13 +16,21 @@ def purchase_course(tool_context: ToolContext) -> dict:
     current_purchased_courses = tool_context.state.get("purchased_courses", [])
 
     # Check if user already owns the course
-    if course_id in current_purchased_courses:
+    course_ids = [
+        course["id"] for course in current_purchased_courses if isinstance(course, dict)
+    ]
+    if course_id in course_ids:
         return {"status": "error", "message": "You already own this course!"}
 
     # Create new list with the course added
-    new_purchased_courses = current_purchased_courses.copy()
-    if course_id not in new_purchased_courses:
-        new_purchased_courses.append(course_id)
+    new_purchased_courses = []
+    # Only include valid dictionary courses
+    for course in current_purchased_courses:
+        if isinstance(course, dict) and "id" in course:
+            new_purchased_courses.append(course)
+
+    # Add the new course as a dictionary with id and purchase_date
+    new_purchased_courses.append({"id": course_id, "purchase_date": current_time})
 
     # Update purchased courses in state via assignment
     tool_context.state["purchased_courses"] = new_purchased_courses
@@ -76,6 +84,8 @@ sales_agent = Agent(
 
     When interacting with users:
     1. Check if they already own the course (check purchased_courses above)
+       - Course information is stored as objects with "id" and "purchase_date" properties
+       - The course id is "ai_marketing_platform"
     2. If they own it:
        - Remind them they have access
        - Ask if they need help with any specific part

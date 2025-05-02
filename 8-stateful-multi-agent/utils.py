@@ -123,7 +123,14 @@ def display_state(
         # Handle purchased courses
         purchased_courses = session.state.get("purchased_courses", [])
         if purchased_courses and any(purchased_courses):
-            print(f"📚 Courses: {', '.join(c for c in purchased_courses if c)}")
+            print("📚 Courses:")
+            for course in purchased_courses:
+                if isinstance(course, dict):
+                    course_id = course.get("id", "Unknown")
+                    purchase_date = course.get("purchase_date", "Unknown date")
+                    print(f"  - {course_id} (purchased on {purchase_date})")
+                elif course:  # Handle string format for backward compatibility
+                    print(f"  - {course}")
         else:
             print("📚 Courses: None")
 

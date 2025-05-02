@@ -24,6 +24,7 @@ customer_service_agent = Agent(
     2. State Management
        - Track user interactions in state['interaction_history']
        - Monitor user's purchased courses in state['purchased_courses']
+         - Course information is stored as objects with "id" and "purchase_date" properties
        - Use state to provide personalized responses
 
     **User Information:**
@@ -55,7 +56,7 @@ customer_service_agent = Agent(
     3. Course Support Agent
        - For questions about course content
        - Only available for courses the user has purchased
-       - Check if "ai_marketing_platform" is in the purchased courses before directing here
+       - Check if a course with id "ai_marketing_platform" exists in the purchased courses before directing here
 
     4. Order Agent
        - For checking purchase history and processing refunds

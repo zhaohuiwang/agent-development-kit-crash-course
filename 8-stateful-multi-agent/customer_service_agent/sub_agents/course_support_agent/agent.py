@@ -18,9 +18,12 @@ course_support_agent = Agent(
     </purchase_info>
 
     Before helping:
-    - Check if the user owns "ai_marketing_platform" in their purchased courses
+    - Check if the user owns the AI Marketing Platform course
+    - Course information is stored as objects with "id" and "purchase_date" properties
+    - Look for a course with id "ai_marketing_platform" in the purchased courses
     - Only provide detailed help if they own the course
     - If they don't own the course, direct them to the sales agent
+    - If they do own the course, you can mention when they purchased it (from the purchase_date property)
 
     Course Sections:
     1. Introduction

@@ -23,14 +23,26 @@ def refund_course(tool_context: ToolContext) -> dict:
     current_purchased_courses = tool_context.state.get("purchased_courses", [])
 
     # Check if user owns the course
-    if course_id not in current_purchased_courses:
+    course_ids = [
+        course["id"] for course in current_purchased_courses if isinstance(course, dict)
+    ]
+    if course_id not in course_ids:
         return {
             "status": "error",
             "message": "You don't own this course, so it can't be refunded.",
         }
 
-    # Create new list without the course
-    new_purchased_courses = [c for c in current_purchased_courses if c != course_id]
+    # Create new list without the course to be refunded
+    new_purchased_courses = []
+    for course in current_purchased_courses:
+        # Skip empty entries or non-dict entries
+        if not course or not isinstance(course, dict):
+            continue
+        # Skip the course being refunded
+        if course.get("id") == course_id:
+            continue
+        # Keep all other courses
+        new_purchased_courses.append(course)
 
     # Update purchased courses in state via assignment
     tool_context.state["purchased_courses"] = new_purchased_courses
@@ -79,9 +91,10 @@ order_agent = Agent(
 
     When users ask about their purchases:
     1. Check their course list from the purchase info above
+       - Course information is stored as objects with "id" and "purchase_date" properties
     2. Format the response clearly showing:
        - Which courses they own
-       - When they were purchased (check interaction_history if available)
+       - When they were purchased (from the course.purchase_date property)
 
     When users request a refund:
     1. Verify they own the course they want to refund ("ai_marketing_platform")
