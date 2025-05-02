@@ -193,20 +193,7 @@ async def process_agent_response(event):
     has_specific_part = False
     if event.content and event.content.parts:
         for part in event.content.parts:
-            if hasattr(part, "executable_code") and part.executable_code:
-                # Access the actual code string via .code
-                print(
-                    f"  Debug: Agent generated code:\n```python\n{part.executable_code.code}\n```"
-                )
-                has_specific_part = True
-            elif hasattr(part, "code_execution_result") and part.code_execution_result:
-                # Access outcome and output correctly
-                print(
-                    f"  Debug: Code Execution Result: {part.code_execution_result.outcome} - Output:\n{part.code_execution_result.output}"
-                )
-                has_specific_part = True
-            # Also print any text parts found in any event for debugging
-            elif hasattr(part, "text") and part.text and not part.text.isspace():
+            if hasattr(part, "text") and part.text and not part.text.isspace():
                 print(f"  Text: '{part.text.strip()}'")
 
     # Check for final response after specific parts
