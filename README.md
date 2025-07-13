@@ -2,6 +2,8 @@
 
 This repository contains examples for learning Google's Agent Development Kit (ADK), a powerful framework for building LLM-powered agents.
 
+https://www.youtube.com/watch?v=P4VFL9nIaIA
+
 ## Getting Started
 
 ### Setup Environment
