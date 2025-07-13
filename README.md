@@ -48,6 +48,7 @@ If you do not want to save your credentials in a file, just export them after a 
 
 (.venv) zhaohuiwang@WangFamily:/mnt/e/zhaohuiwang/dev/agent-development-kit-crash-course$ export GOOGLE_API_KEY=your-key-here
 
+Ensure you have at least Generative Language API (Gemini API) enabled.
 
 You'll need to repeat this for each example project you want to run.
 
