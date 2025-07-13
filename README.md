@@ -43,6 +43,11 @@ Each example folder contains a `.env.example` file. For each project you want to
    ```
    GOOGLE_API_KEY=your_api_key_here
    ```
+If you do not want to save your credentials in a file, just export them after a session initiated:
+(.venv) zhaohuiwang@WangFamily:/mnt/e/zhaohuiwang/dev/agent-development-kit-crash-course$ export GOOGLE_GENAI_USE_VERTEXAI=FALSE
+
+(.venv) zhaohuiwang@WangFamily:/mnt/e/zhaohuiwang/dev/agent-development-kit-crash-course$ export GOOGLE_API_KEY=your-key-here
+
 
 You'll need to repeat this for each example project you want to run.
 
